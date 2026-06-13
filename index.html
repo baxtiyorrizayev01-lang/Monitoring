@@ -1641,55 +1641,26 @@ if (!API || !TOKEN) {
 }
 </script>
 
-<!-- ─ Login Overlay ──────────────────────────────────────────────────────── -->
-<div id="login-overlay" style="
-  display:none;position:fixed;inset:0;background:#07090f;z-index:9999;
-  align-items:center;justify-content:center;
-">
-  <div style="
-    background:#0d1117;border:1px solid rgba(255,107,0,.25);border-radius:16px;
-    padding:40px;width:100%;max-width:420px;margin:20px;
-  ">
+<!-- Login Overlay -->
+<div id="login-overlay" style="display:none;position:fixed;inset:0;background:#07090f;z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#0d1117;border:1px solid rgba(255,107,0,.25);border-radius:16px;padding:40px;width:100%;max-width:420px;margin:20px;">
     <div style="text-align:center;margin-bottom:28px">
       <div style="font-size:48px;margin-bottom:12px">🔥</div>
       <div style="font-size:24px;font-weight:700;color:#ff6b00;letter-spacing:.06em">BLAZE CS2</div>
       <div style="font-size:13px;color:#6b7280;margin-top:4px">Admin Panel</div>
     </div>
-
     <div style="margin-bottom:14px">
       <div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:700">Railway URL</div>
-      <input id="login-api" type="text"
-        placeholder="https://blazeskin.up.railway.app"
-        style="width:100%;padding:12px 14px;background:#131920;border:1px solid rgba(255,107,0,.2);
-               border-radius:10px;color:#e8eaed;font-family:'Rajdhani',sans-serif;font-size:14px;
-               outline:none;"
-        value=""
-      />
+      <input id="login-api" type="text" placeholder="https://blazeskin.up.railway.app" style="width:100%;padding:12px 14px;background:#131920;border:1px solid rgba(255,107,0,.2);border-radius:10px;color:#e8eaed;font-size:14px;outline:none;font-family:monospace"/>
     </div>
-
     <div style="margin-bottom:20px">
       <div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:700">Telegram ID</div>
-      <input id="login-tg" type="number"
-        placeholder="123456789"
-        style="width:100%;padding:12px 14px;background:#131920;border:1px solid rgba(255,107,0,.2);
-               border-radius:10px;color:#e8eaed;font-family:'JetBrains Mono',monospace;font-size:14px;
-               outline:none;"
-      />
+      <input id="login-tg" type="number" placeholder="123456789" style="width:100%;padding:12px 14px;background:#131920;border:1px solid rgba(255,107,0,.2);border-radius:10px;color:#e8eaed;font-size:14px;outline:none;font-family:monospace"/>
       <div style="font-size:11px;color:#6b7280;margin-top:6px">@userinfobot ga yozing — ID ni beradi</div>
     </div>
-
     <div id="login-err" style="color:#ff4444;font-size:13px;margin-bottom:12px;min-height:18px"></div>
-
-    <button id="login-btn" onclick="doLogin()" style="
-      width:100%;padding:14px;border-radius:10px;border:none;
-      background:linear-gradient(135deg,#ff6b00,#ff8c00);
-      color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
-      cursor:pointer;letter-spacing:.04em;
-    ">🔐 Kirish</button>
-
-    <div style="font-size:12px;color:#6b7280;text-align:center;margin-top:16px">
-      Telegram ID ADMIN_IDS da bo'lishi kerak
-    </div>
+    <button id="login-btn" onclick="doLogin()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#ff6b00,#ff8c00);color:#fff;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:.04em;">🔐 Kirish</button>
+    <div style="font-size:12px;color:#6b7280;text-align:center;margin-top:16px">Telegram ID ADMIN_IDS da bolishi kerak</div>
   </div>
 </div>
 
