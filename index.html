@@ -829,7 +829,7 @@
 
 <script>
 // ─ Config ───────────────────────────────────────────────────────────────────
-let API   = localStorage.getItem('blaze_api') || ''
+let API   = localStorage.getItem('blaze_api') || 'https://miraculous-perception-production.up.railway.app'
 let TOKEN = localStorage.getItem('blaze_token') || ''
 
 async function api(path, opts={}) {
@@ -1633,12 +1633,36 @@ function doLogout() {
 }
 
 // ─ Init ──────────────────────────────────────────────────────────────────────
-if (!API || !TOKEN) {
-  showLogin()
-} else {
-  hideLogin()
-  loadDashboard()
+async function autoInit() {
+  if (!TOKEN) {
+    // Auto-login with hardcoded admin
+    try {
+      const res = await fetch(API + '/api/admin/token', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ telegram_id: 8263541474 })
+      })
+      const data = await res.json()
+      if (data.access_token) {
+        TOKEN = data.access_token
+        localStorage.setItem('blaze_token', TOKEN)
+        localStorage.setItem('blaze_api', API)
+        if(document.getElementById('admin-name'))
+          document.getElementById('admin-name').textContent = data.first_name || 'Admin'
+        hideLogin()
+        loadDashboard()
+      } else {
+        showLogin()
+      }
+    } catch(e) {
+      showLogin()
+    }
+  } else {
+    hideLogin()
+    loadDashboard()
+  }
 }
+autoInit()
 </script>
 
 <!-- Login Overlay -->
