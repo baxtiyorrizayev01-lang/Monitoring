@@ -829,8 +829,8 @@
 
 <script>
 // ─ Config ───────────────────────────────────────────────────────────────────
-const API   = (localStorage.getItem('blaze_api') || 'https://your-backend.railway.app')
-const TOKEN = localStorage.getItem('blaze_token') || ''
+let API   = localStorage.getItem('blaze_api') || ''
+let TOKEN = localStorage.getItem('blaze_token') || ''
 
 async function api(path, opts={}) {
   const r = await fetch(API + path, {
@@ -1573,29 +1573,125 @@ document.querySelectorAll('.modal-backdrop').forEach(m=>{
   })
 })
 
-// ─ API setup from localStorage ───────────────────────────────────────────────
-function setupAPI() {
-  const api = prompt('Backend API URL:', localStorage.getItem('blaze_api')||'https://your-backend.railway.app')
-  if(api) localStorage.setItem('blaze_api', api)
-  const token = prompt('JWT Token (admin):', localStorage.getItem('blaze_token')||'')
-  if(token) localStorage.setItem('blaze_token', token)
-  location.reload()
+// ─ Login system ──────────────────────────────────────────────────────────────
+function showLogin() {
+  document.getElementById('login-overlay').style.display = 'flex'
+  document.querySelector('.layout').style.display = 'none'
 }
 
-// Check if API is configured
-if(!localStorage.getItem('blaze_api') || localStorage.getItem('blaze_api')==='https://your-backend.railway.app') {
-  const c = document.createElement('div')
-  c.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999'
-  c.innerHTML = `<button onclick="setupAPI()" style="
-    background:linear-gradient(135deg,#ff6b00,#ff8c00);color:#fff;
-    border:none;padding:12px 20px;border-radius:10px;cursor:pointer;
-    font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;
-  ">⚙️ API Sozlash</button>`
-  document.body.appendChild(c)
+function hideLogin() {
+  document.getElementById('login-overlay').style.display = 'none'
+  document.querySelector('.layout').style.display = 'flex'
+}
+
+async function doLogin() {
+  const apiUrl  = document.getElementById('login-api').value.trim().replace(/\/+$/, '')
+  const adminTg = document.getElementById('login-tg').value.trim()
+  const errEl   = document.getElementById('login-err')
+  const btn     = document.getElementById('login-btn')
+
+  if (!apiUrl || !adminTg) { errEl.textContent = 'Barcha maydonlarni toldiring'; return }
+
+  btn.textContent = '⏳ Kirilmoqda...'
+  btn.disabled = true
+  errEl.textContent = ''
+
+  try {
+    // Get token via special admin endpoint
+    const res = await fetch(apiUrl + '/api/admin/token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ telegram_id: parseInt(adminTg) })
+    })
+    const data = await res.json()
+
+    if (data.access_token) {
+      localStorage.setItem('blaze_api', apiUrl)
+      localStorage.setItem('blaze_token', data.access_token)
+      API   = apiUrl
+      TOKEN = data.access_token
+      hideLogin()
+      loadDashboard()
+      document.getElementById('admin-name').textContent = data.first_name || 'Admin'
+    } else {
+      errEl.textContent = data.detail || 'Xato: ruxsat yoq yoki URL notogri'
+    }
+  } catch(e) {
+    errEl.textContent = 'Ulanib bolmadi: ' + apiUrl
+  }
+
+  btn.textContent = '🔐 Kirish'
+  btn.disabled = false
+}
+
+function doLogout() {
+  localStorage.removeItem('blaze_token')
+  localStorage.removeItem('blaze_api')
+  TOKEN = ''
+  API   = ''
+  showLogin()
 }
 
 // ─ Init ──────────────────────────────────────────────────────────────────────
-loadDashboard()
+if (!API || !TOKEN) {
+  showLogin()
+} else {
+  hideLogin()
+  loadDashboard()
+}
 </script>
+
+<!-- ─ Login Overlay ──────────────────────────────────────────────────────── -->
+<div id="login-overlay" style="
+  display:none;position:fixed;inset:0;background:#07090f;z-index:9999;
+  align-items:center;justify-content:center;
+">
+  <div style="
+    background:#0d1117;border:1px solid rgba(255,107,0,.25);border-radius:16px;
+    padding:40px;width:100%;max-width:420px;margin:20px;
+  ">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:48px;margin-bottom:12px">🔥</div>
+      <div style="font-size:24px;font-weight:700;color:#ff6b00;letter-spacing:.06em">BLAZE CS2</div>
+      <div style="font-size:13px;color:#6b7280;margin-top:4px">Admin Panel</div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:700">Railway URL</div>
+      <input id="login-api" type="text"
+        placeholder="https://blazeskin.up.railway.app"
+        style="width:100%;padding:12px 14px;background:#131920;border:1px solid rgba(255,107,0,.2);
+               border-radius:10px;color:#e8eaed;font-family:'Rajdhani',sans-serif;font-size:14px;
+               outline:none;"
+        value=""
+      />
+    </div>
+
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:700">Telegram ID</div>
+      <input id="login-tg" type="number"
+        placeholder="123456789"
+        style="width:100%;padding:12px 14px;background:#131920;border:1px solid rgba(255,107,0,.2);
+               border-radius:10px;color:#e8eaed;font-family:'JetBrains Mono',monospace;font-size:14px;
+               outline:none;"
+      />
+      <div style="font-size:11px;color:#6b7280;margin-top:6px">@userinfobot ga yozing — ID ni beradi</div>
+    </div>
+
+    <div id="login-err" style="color:#ff4444;font-size:13px;margin-bottom:12px;min-height:18px"></div>
+
+    <button id="login-btn" onclick="doLogin()" style="
+      width:100%;padding:14px;border-radius:10px;border:none;
+      background:linear-gradient(135deg,#ff6b00,#ff8c00);
+      color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
+      cursor:pointer;letter-spacing:.04em;
+    ">🔐 Kirish</button>
+
+    <div style="font-size:12px;color:#6b7280;text-align:center;margin-top:16px">
+      Telegram ID ADMIN_IDS da bo'lishi kerak
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
